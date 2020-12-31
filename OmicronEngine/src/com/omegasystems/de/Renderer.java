@@ -12,7 +12,7 @@ import java.util.List;
 public class Renderer {
 	private final String TITLE = "OmegaSystems 3D Engine - Rendering Test 3";
 	private final double aspectRatio = 16. / 9.;
-	public final int WIDTH = 800;
+	public final int WIDTH = 1600;
 	public final int HEIGHT = (int) (WIDTH / aspectRatio);
 	//private final int HALF_WIDTH = WIDTH / 2;
 	private final int HALF_HEIGHT = HEIGHT / 2;
@@ -42,15 +42,15 @@ public class Renderer {
 	
 	public Renderer() {
 		System.out.println("Setting up window with " + Integer.toString(WIDTH) + " x " + Integer.toString(HEIGHT));
-		window = new Window(WIDTH, HEIGHT, TITLE);
-		canvas = window.getPixelCanvas();
-		inputHandler = window.getInputHandler();
-		
 		wallQueue = new ArrayList<Wall>();
 		tempQuadQueue = new ArrayList<Quad>();
 		quadQueue = new ArrayList<Quad>();
 		
 		setupBackground();
+		
+		window = new Window(WIDTH, HEIGHT, TITLE);
+		canvas = window.getPixelCanvas();
+		inputHandler = window.getInputHandler();
 	}
 	
 	public void render() {
@@ -78,7 +78,7 @@ public class Renderer {
 		Collections.sort(wallQueue, new Comparator<Wall>() {
 			@Override
 			public int compare(Wall l, Wall r) {
-				return (int) Math.signum(Math.max(r.a.length(), r.b.length()) - Math.max(l.a.length(), l.b.length()) );
+				return (int) Math.signum(Math.max(r.a.length(), r.b.length()) - Math.max(l.a.length(), l.b.length()));
 			}
 		});
 		
@@ -89,16 +89,25 @@ public class Renderer {
 			drawWall(wallQueue.get(0));
 			wallQueue.remove(0);
 		}
-		
-		quadQueue.clear();
-		for(Quad quad: tempQuadQueue) {
-			quadQueue.add(quad);
-		}
+		updateQuadQueue();
 		
 		timerGraphic = System.nanoTime();
 		
 		canvas.repaint();
 	}
+	
+	public void updateQuadQueue() {
+		synchronized (quadQueue) {
+			quadQueue = List.copyOf(tempQuadQueue);
+		}
+	}
+
+	public List<Quad> getQuadQueue() {
+		synchronized (quadQueue) {
+			return List.copyOf(quadQueue);
+		}
+	}
+
 	
 	
 	
