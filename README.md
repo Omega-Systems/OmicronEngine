@@ -1,2 +1,2 @@
 # OmicronEngine
-3D Engine in Java
+A 3D Engine in Java
