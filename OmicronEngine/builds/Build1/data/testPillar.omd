@@ -1,0 +1,15 @@
+// Test map consisting of a room with a pillar in the middle
+
+version 1
+
+spawn 2 0 2 0
+
+wall -1 -1 1 -1
+wall 1 -1 1 1
+wall 1 1 -1 1
+wall -1 1 -1 -1
+
+wall -3 -3 -3 3
+wall -3 3 3 3
+wall 3 3 3 -3
+wall 3 -3 -3 -3

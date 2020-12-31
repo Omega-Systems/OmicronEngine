@@ -1,0 +1,28 @@
+=== OmegaSystems Map Data File Format (.omd) ===
+
+This file format is designed to hold all the information
+about a map used by the OmegaSystems 3D Engine. All information in a omd-File is part of an object.
+Every object belongs to an object type and has an optional index.
+If no index is given it is automacilly assumed to be zero.
+
+=== General Structure ===
+
+def OBJECT_TYPE (INDEX)
+COMMAND	ARG0 ARG1 ...
+enddef
+
+
+=== Object Types ===
+
+--- header ---
+version VERSION			This command checks if the file is written
+						in the same version as the file handler uses
+
+--- spawn ---
+pos X Y Z				This command sets the player spawn position
+rot ANGLE				This command sets the player spawn rotation
+
+--- sector ---
+area X1 Y1 X2 Y2		This command defines the area of the sector
+wall X1 Y2 X2 Y2 COLOR	This command adds a wall to the sector
+queueu INDEX			This command adds a reference to another visible wall

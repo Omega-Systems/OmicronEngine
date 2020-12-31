@@ -1,0 +1,38 @@
+// Test for version 2 of OmegaSystems map data format
+// Version 2 utilises sectors to divide the map into several rectangular areas
+// Each sector defines a list of other sector visible from it
+
+def header
+version 2
+enddef
+
+def spawn
+pos 1 0 1
+rot 0
+enddef
+
+def sector 0
+area 0 0 2 4
+wall 2 4 2 0 0xf07070
+wall 2 0 0 0 0xf07070
+wall 0 0 0 4 0xf07070
+queue 1
+enddef
+
+def sector 1
+area 0 4 6 6
+wall 6 6 6 4 0x70f070
+wall 4 4 2 4 0x70f070
+wall 0 4 0 6 0x70f070
+wall 0 6 6 6 0x70f070
+queue 0
+queue 2
+enddef
+
+def sector 2
+area 4 2 6 4
+wall 6 4 6 2 0x7070f0
+wall 6 2 4 2 0x7070f0
+wall 4 2 4 4 0x7070f0
+queue 1
+enddef
