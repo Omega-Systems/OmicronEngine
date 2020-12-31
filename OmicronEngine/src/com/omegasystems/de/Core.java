@@ -9,7 +9,7 @@ public class Core {
 	public static double timeSinceStart;
 	public static double deltatime;
 	
-	public static int fps;
+	public static int tps;
 	public static int deltaLogic;
 	public static int deltaGraphic;
 	
@@ -57,7 +57,7 @@ public class Core {
 				double deltaLDU = (start - LDUtime) / 1_000_000_000d;
 				long deltaLDUt = (ticks - LDUticks);
 
-				fps = (int) (debugFrames /  deltaLDU);
+				tps = (int) (debugFrames /  deltaLDU);
 				deltaLogic = (int) ((debugLogic / deltaLDUt) / 1_000_000d);
 				deltaGraphic = (int) ((debugGraphic / deltaLDUt) / 1_000_000d);
 				
