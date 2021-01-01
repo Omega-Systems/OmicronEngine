@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class FileHandler {
-	static final int version = 2;
+	static final int version = 3;
 	String filename;
 	
 	public FileHandler(String filename) {
@@ -74,7 +74,6 @@ public class FileHandler {
 							Core.renderer.cameraPos = new Vec3(Double.valueOf(tokens[1]), Double.valueOf(tokens[2]), Double.valueOf(tokens[3]));
 							break;
 						case "rot":
-							Core.renderer.cameraYaw = Double.valueOf(tokens[1]);
 							break;
 						case "enddef":
 							object = "";
@@ -99,7 +98,8 @@ public class FileHandler {
 						case "wall":
 							sector.walls.add(new Wall(new Vec2(Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2])),
 													  new Vec2(Integer.valueOf(tokens[3]), Integer.valueOf(tokens[4])),
-													  Integer.parseUnsignedInt(tokens[5].substring(2), 16)));
+													  Integer.valueOf(tokens[5]), Integer.valueOf(tokens[6]),
+													  Integer.parseUnsignedInt(tokens[7].substring(2), 16)));
 							break;
 						case "enddef":
 							object = "";

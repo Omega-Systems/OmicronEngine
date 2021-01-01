@@ -10,21 +10,17 @@ public class Core {
 	public static double deltatime;
 	
 	public static int tps;
-	public static int deltaLogic;
-	public static int deltaGraphic;
-	
-	public static long debugFrames;
-	public static long debugLogic;
-	public static long debugGraphic;
-	
+	public static int fps;
+
 	public static long LDUtime;
 	public static long LDUticks;
+	public static long LDUframes;
 	
 	public static void main(String[] args) {
 		System.out.println("Starting OmicronEngine");
 		
 		renderer = new Renderer();
-		fileHandler = new FileHandler("testMap1.omd");
+		fileHandler = new FileHandler("testMap2.omd");
 		
 		fileHandler.loadMap();
 		
@@ -37,6 +33,7 @@ public class Core {
 		ticks = 0;
 		LDUtime = System.nanoTime();
 		LDUticks = 0;
+		LDUframes = 0;
 		long start = System.nanoTime();
 		
 		while (running) {
@@ -49,23 +46,17 @@ public class Core {
 			renderer.render();
 			renderer.handleInputs();
 			
-			debugFrames += 1;
-			debugLogic += renderer.timerLogic - start;
-			debugGraphic += renderer.timerGraphic - start;
-			
 			if (start - LDUtime > 0.5 * 1_000_000_000) {
 				double deltaLDU = (start - LDUtime) / 1_000_000_000d;
 				long deltaLDUt = (ticks - LDUticks);
+				long deltaLDUf = (PixelCanvas.frames - LDUframes);
 
-				tps = (int) (debugFrames /  deltaLDU);
-				deltaLogic = (int) ((debugLogic / deltaLDUt) / 1_000_000d);
-				deltaGraphic = (int) ((debugGraphic / deltaLDUt) / 1_000_000d);
+				tps = (int) (deltaLDUt /  deltaLDU);
+				fps = (int) (deltaLDUf / deltaLDU);
 				
 				LDUtime = start;
 				LDUticks = ticks;
-				debugFrames = 0;
-				debugLogic = 0;
-				debugGraphic = 0;
+				LDUframes = PixelCanvas.frames;
 			}
 			
 			//try {Thread.sleep(5);} catch (InterruptedException e) {}

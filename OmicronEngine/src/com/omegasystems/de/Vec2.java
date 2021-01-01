@@ -37,6 +37,10 @@ public class Vec2 {
 		return Math.sqrt(this.x * this.x + this.y * this.y);
 	}
 	
+	public double squaredLength() { // Returns the squared length of this
+		return this.x * this.x + this.y * this.y;
+	}
+	
 	public Vec2 normalize() { // Returns a normalized version of this
 		return this.div(this.length());
 	}

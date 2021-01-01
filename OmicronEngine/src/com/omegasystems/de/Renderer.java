@@ -10,9 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Renderer {
-	private final String TITLE = "OmegaSystems 3D Engine - Rendering Test 3";
+	private final String TITLE = "OmegaSystems 3D Engine - Rendering Test 4";
 	private final double aspectRatio = 16. / 9.;
-	public final int WIDTH = 1600;
+	public final int WIDTH = 1200;
 	public final int HEIGHT = (int) (WIDTH / aspectRatio);
 	//private final int HALF_WIDTH = WIDTH / 2;
 	private final int HALF_HEIGHT = HEIGHT / 2;
@@ -37,8 +37,6 @@ public class Renderer {
 	
 	public int debugWC;
 	public int debugWD;
-	public long timerLogic;
-	public long timerGraphic;
 	
 	public Renderer() {
 		System.out.println("Setting up window with " + Integer.toString(WIDTH) + " x " + Integer.toString(HEIGHT));
@@ -78,11 +76,9 @@ public class Renderer {
 		Collections.sort(wallQueue, new Comparator<Wall>() {
 			@Override
 			public int compare(Wall l, Wall r) {
-				return (int) Math.signum(Math.max(r.a.length(), r.b.length()) - Math.max(l.a.length(), l.b.length()));
+				return (int)Math.signum(Math.max(r.a.squaredLength(), r.b.squaredLength()) - Math.max(l.a.squaredLength(), l.b.squaredLength()));
 			}
 		});
-		
-		timerLogic = System.nanoTime();
 		
 		tempQuadQueue.clear();
 		while (!wallQueue.isEmpty()) {
@@ -90,8 +86,6 @@ public class Renderer {
 			wallQueue.remove(0);
 		}
 		updateQuadQueue();
-		
-		timerGraphic = System.nanoTime();
 		
 		canvas.repaint();
 	}
@@ -126,56 +120,56 @@ public class Renderer {
 	public void drawWall(Wall wall) {
 		debugWC += 1;
 		
-		Vec3 aUpper = wall.getUpperA();
-		Vec3 bUpper = wall.getUpperB();
+		Vec3 aLower = wall.getLowerA();
+		Vec3 bLower = wall.getLowerB();
 		
-		if (aUpper.z < 0. && bUpper.z < 0.) {
+		if (aLower.z < 0. && bLower.z < 0.) {
 			return;
 		}
 		
-		double d = (aUpper.x - bUpper.x) / (aUpper.z - bUpper.z);
+		double d = (aLower.x - bLower.x) / (aLower.z - bLower.z);
 		
-		if (aUpper.z < 0.001) {
-			aUpper.x -= d * aUpper.z;
-			aUpper.z = 0.001;
+		if (aLower.z < 0.001) {
+			aLower.x -= d * aLower.z;
+			aLower.z = 0.001;
 		}
-		if (bUpper.z < 0.001) {
-			bUpper.x -= d * bUpper.z;
-			bUpper.z = 0.001;
+		if (bLower.z < 0.001) {
+			bLower.x -= d * bLower.z;
+			bLower.z = 0.001;
 		}
 		
-		Vec2 aUpperS = aUpper.toScreenSpace();
-		Vec2 bUpperS = bUpper.toScreenSpace();
+		Vec2 aLowerS = aLower.toScreenSpace();
+		Vec2 bLowerS =  bLower.toScreenSpace();
+		Vec2 aUpperS = aLower.add(new Vec3(0., wall.ha, 0.)).toScreenSpace();
+		Vec2 bUpperS = bLower.add(new Vec3(0., wall.hb, 0.)).toScreenSpace();
 		
-		if (aUpperS.x > bUpperS.x) {
+		if (aLowerS.x > bLowerS.x) {
 			return;
 		}
 		
+		Vec2i aLowerP = aLowerS.toPixelSpace(WIDTH, HEIGHT);
+		Vec2i bLowerP = bLowerS.toPixelSpace(WIDTH, HEIGHT);
 		Vec2i aUpperP = aUpperS.toPixelSpace(WIDTH, HEIGHT);
 		Vec2i bUpperP = bUpperS.toPixelSpace(WIDTH, HEIGHT);
 		
-		if ((aUpperP.x < 0 && bUpperP.x < 0) || (aUpperP.x > WIDTH && bUpperP.x > WIDTH)) {
+		if ((aLowerP.x < 0 && bLowerP.x < 0) || (aLowerP.x > WIDTH && bLowerP.x > WIDTH)) {
 			return;
 		}
 		
-		int horStart = (int) aUpperP.x;
-		int horEnd = (int) bUpperP.x;
-		int heightA = HALF_HEIGHT - aUpperP.y;
-		int heightB = HALF_HEIGHT - bUpperP.y;
+//		int horStart = (int) aLowerP.x;
+//		int horEnd = (int) bLowerP.x;
+//		int heightA = HALF_HEIGHT - (int)(wall.ha / wall.a.y);
+//		int heightB = HALF_HEIGHT - (int)(wall.hb / wall.b.y);
+//		
+//		int heightLeft = getHeight(horStart, horEnd, heightA, heightB, Math.max(0, horStart));
+//		int heightRight = getHeight(horStart, horEnd, heightA, heightB, Math.min(WIDTH, horEnd));
 		
-		int heightLeft = getHeight(horStart, horEnd, heightA, heightB, Math.max(0, horStart));
-		int heightRight = getHeight(horStart, horEnd, heightA, heightB, Math.min(WIDTH, horEnd));
-		
-		tempQuadQueue.add(new Quad(new Vec2i(Math.max(0, horStart), HALF_HEIGHT + heightLeft),
-							   new Vec2i(Math.max(0, horStart), HALF_HEIGHT - heightLeft),
-							   new Vec2i(Math.min(WIDTH, horEnd), HALF_HEIGHT - heightRight),
-							   new Vec2i(Math.min(WIDTH, horEnd), HALF_HEIGHT + heightRight),
-							   wall.color));
+		tempQuadQueue.add(new Quad(aLowerP, bLowerP, bUpperP, aUpperP, wall.color));
 		debugWD += 1;
 	}
 	
 	public int getHeight(int horStart, int horEnd, int heightA, int heightB, int x) {
-		double v = (double)(x - horStart) / (double)(horEnd - horStart);
+		double v = (double)(x - horStart) / (horEnd - horStart);
 		return (int) (heightA * (1. - v) + heightB * v);
 	}
 	
