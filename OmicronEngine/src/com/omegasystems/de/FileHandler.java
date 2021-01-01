@@ -71,7 +71,7 @@ public class FileHandler {
 					case "spawn":
 						switch (tokens[0]) {
 						case "pos":
-							Core.renderer.cameraPos = new Vec3(Double.valueOf(tokens[1]), Double.valueOf(tokens[2]), Double.valueOf(tokens[3]));
+							Core.renderer.playerPos = new Vec3(Double.valueOf(tokens[1]), Double.valueOf(tokens[2]), Double.valueOf(tokens[3]));
 							break;
 						case "rot":
 							break;

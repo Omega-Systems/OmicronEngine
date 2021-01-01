@@ -35,8 +35,9 @@ public class PixelCanvas extends JPanel{
 	    super.paintComponent(g);
 	    Graphics2D g2d = (Graphics2D) g.create();
 	    g2d.setFont(font);
-	    //g2d.clearRect(0, 0, Core.renderer.WIDTH, Core.renderer.HEIGHT);
-	    g2d.drawImage(img, 0, 0, this);
+	    
+	    g2d.setColor(new Color(0x404040));
+	    g2d.fillRect(0, 0, Core.renderer.WIDTH, Core.renderer.HEIGHT);
 
 	    for (Quad quad: Core.renderer.getQuadQueue()){
 	    	g2d.setColor(new Color(quad.color));
@@ -46,8 +47,8 @@ public class PixelCanvas extends JPanel{
 	    g2d.setColor(new Color(0xf0f0f0));
 	    g2d.drawString("TPS: " + Integer.toString(Core.tps), 5, 15);
 	    g2d.drawString("FPS: " + Integer.toString(Core.fps), 5, 30);
-	    g2d.drawString("WallC: " + Integer.toString(Core.renderer.debugWC), 80, 15);
-	    g2d.drawString("WallD: " + Integer.toString(Core.renderer.debugWD), 80, 30);
+	    g2d.drawString("WallC: " + Integer.toString(Core.renderer.debugWC), 100, 15);
+	    g2d.drawString("WallD: " + Integer.toString(Core.renderer.debugWD), 100, 30);
 	    g2d.dispose();
 	    
 	    frames++;

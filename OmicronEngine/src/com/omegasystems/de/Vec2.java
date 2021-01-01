@@ -42,7 +42,7 @@ public class Vec2 {
 	}
 	
 	public Vec2 normalize() { // Returns a normalized version of this
-		return this.div(this.length());
+		return x != 0. || y != 0. ? this.div(this.length()) : new Vec2(0., 0.);
 	}
 	
 	public Vec2i toPixelSpace(long width, long height) { // Returns the pixel space coords of this

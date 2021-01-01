@@ -1,12 +1,8 @@
 package com.omegasystems.de;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public class Renderer {
@@ -14,20 +10,16 @@ public class Renderer {
 	private final double aspectRatio = 16. / 9.;
 	public final int WIDTH = 1200;
 	public final int HEIGHT = (int) (WIDTH / aspectRatio);
-	//private final int HALF_WIDTH = WIDTH / 2;
-	private final int HALF_HEIGHT = HEIGHT / 2;
 	
 	private Window window;
 	private PixelCanvas canvas;
 	private InputHandler inputHandler;
 	
-	public Vec3 cameraPos;
-	public double cameraYaw;
-	
-	private final int COLOR_CEILING = 0x404040;
-	private final int COLOR_FLOOR = 0x303030;
-	
-	private BufferedImage background;
+	private final double eyeheight = 0.5;
+	public Vec3 playerPos;
+	public double playerYaw;
+	public Vec3 velocity = new Vec3(0., 0., 0.);
+	public double upwardsVelocity;
 	
 	public ArrayList<Sector> sectors = new ArrayList<Sector>();
 	
@@ -44,33 +36,31 @@ public class Renderer {
 		tempQuadQueue = new ArrayList<Quad>();
 		quadQueue = new ArrayList<Quad>();
 		
-		setupBackground();
-		
 		window = new Window(WIDTH, HEIGHT, TITLE);
 		canvas = window.getPixelCanvas();
 		inputHandler = window.getInputHandler();
 	}
 	
 	public void render() {
-		WritableRaster raster = background.copyData(null);
-		canvas.img = new BufferedImage(background.getColorModel(), raster, false, null);
 		
 		debugWC = 0;
 		debugWD = 0;
 		
+		Vec3 cameraPos = playerPos.add(new Vec3(0., eyeheight, 0.));
+		
 		Sector actSector = new Sector();
 		for (Sector sector: sectors) {
-			if (cameraPos.xz().inArea(sector.bottomLeft, sector.topRight)) {
+			if (playerPos.xz().inArea(sector.bottomLeft, sector.topRight)) {
 				actSector = sector;
 			}
 		}
 		for (int i: actSector.drawQueue) {
 			for (Wall wall: sectors.get(i).walls) {
-				wallQueue.add(wall.transform(cameraPos, cameraYaw));
+				wallQueue.add(wall.transform(cameraPos, playerYaw));
 			}
 		}
 		for (Wall wall: actSector.walls) {
-			wallQueue.add(wall.transform(cameraPos, cameraYaw));
+			wallQueue.add(wall.transform(cameraPos, playerYaw));
 		}
 		
 		Collections.sort(wallQueue, new Comparator<Wall>() {
@@ -101,21 +91,6 @@ public class Renderer {
 			return List.copyOf(quadQueue);
 		}
 	}
-
-	
-	
-	
-	public void setupBackground() {
-		background = new BufferedImage((int)WIDTH, (int)HEIGHT, BufferedImage.TYPE_INT_RGB);
-		for (int x = 0; x < WIDTH; x++) {
-	        for (int y = 0; y < HEIGHT / 2; y++) {
-	        	background.setRGB(x, y, COLOR_CEILING);
-	        }
-	        for (int y = (int)(HEIGHT / 2); y < HEIGHT; y++) {
-	        	background.setRGB(x, y, COLOR_FLOOR);
-	        }
-	    }
-	}
 	
 	public void drawWall(Wall wall) {
 		debugWC += 1;
@@ -139,7 +114,7 @@ public class Renderer {
 		}
 		
 		Vec2 aLowerS = aLower.toScreenSpace();
-		Vec2 bLowerS =  bLower.toScreenSpace();
+		Vec2 bLowerS = bLower.toScreenSpace();
 		Vec2 aUpperS = aLower.add(new Vec3(0., wall.ha, 0.)).toScreenSpace();
 		Vec2 bUpperS = bLower.add(new Vec3(0., wall.hb, 0.)).toScreenSpace();
 		
@@ -156,14 +131,6 @@ public class Renderer {
 			return;
 		}
 		
-//		int horStart = (int) aLowerP.x;
-//		int horEnd = (int) bLowerP.x;
-//		int heightA = HALF_HEIGHT - (int)(wall.ha / wall.a.y);
-//		int heightB = HALF_HEIGHT - (int)(wall.hb / wall.b.y);
-//		
-//		int heightLeft = getHeight(horStart, horEnd, heightA, heightB, Math.max(0, horStart));
-//		int heightRight = getHeight(horStart, horEnd, heightA, heightB, Math.min(WIDTH, horEnd));
-		
 		tempQuadQueue.add(new Quad(aLowerP, bLowerP, bUpperP, aUpperP, wall.color));
 		debugWD += 1;
 	}
@@ -174,21 +141,38 @@ public class Renderer {
 	}
 	
 	public void handleInputs() {
-		cameraYaw += 2. * inputHandler.rotationSpeed * Core.deltatime;
-		Vec3 movement = new Vec3(inputHandler.rightSpeed, 0., inputHandler.forwardSpeed).mul(Core.deltatime).yaw(-cameraYaw).mul(2);
+		playerYaw += 2. * inputHandler.rotationSpeed * Core.deltatime;
 		
-		Vec3 newPos = cameraPos.add(movement);
+		Vec2 movementXZ = new Vec2(inputHandler.rightSpeed, inputHandler.forwardSpeed).normalize();
+		
+		velocity = velocity.add(new Vec3(movementXZ.x, 0, movementXZ.y).yaw(-playerYaw).mul(Core.deltatime).mul(2.));
+		velocity = velocity.mul(0.5);
+		
+		Vec3 newPos = playerPos.add(velocity);
+		Vec2 xz = newPos.xz();
 		for (Sector sector: sectors) {
-			if (newPos.xz().inArea(sector.bottomLeft, sector.topRight)) {
-				cameraPos = newPos;
+			if (xz.inArea(sector.bottomLeft, sector.topRight)) {
+				playerPos = newPos;
 				break;
 			}
 		}
 		
+		if (newPos.y <= 0.) {
+			upwardsVelocity = 0.;
+			if (inputHandler.jump == 1) {
+				upwardsVelocity = .000008;
+			}
+		}
+		else {
+			upwardsVelocity -= Core.deltatime * 0.00003;
+		}
+		
+		playerPos.y += upwardsVelocity;
+		
 		if (inputHandler.debugInterrupt) {
 			System.out.println("DEBUG INTERRUPT");
-			System.out.println(cameraPos);
-			System.out.println(cameraYaw);
+			System.out.println(playerPos);
+			System.out.println(playerYaw);
 			Core.running = false;
 		}
 	}
