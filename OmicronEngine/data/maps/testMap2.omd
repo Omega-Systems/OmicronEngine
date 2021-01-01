@@ -1,0 +1,36 @@
+// Test Map 3
+
+def header
+version 3
+enddef
+
+def spawn
+pos 1 .5 1
+rot 0
+enddef
+
+def sector 0
+area 0 0 2 4
+wall 2 4 2 0 1 1 0xf07070
+wall 2 0 0 0 1 1 0xf07070
+wall 0 0 0 4 1 1 0xf07070
+queue 1
+enddef
+
+def sector 1
+area 0 4 6 6
+wall 6 6 6 4 1 1 0x70f070
+wall 4 4 2 4 1 1 0x70f070
+wall 0 4 0 6 1 1 0x70f070
+wall 0 6 6 6 1 1 0x70f070
+queue 0
+queue 2
+enddef
+
+def sector 2
+area 4 2 6 4
+wall 6 4 6 2 1 1 0x7070f0
+wall 6 2 4 2 1 1 0x7070f0
+wall 4 2 4 4 1 1 0x7070f0
+queue 1
+enddef
