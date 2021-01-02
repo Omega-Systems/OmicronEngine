@@ -43,8 +43,8 @@ public class Core {
 			
 			start = System.nanoTime();
 			
-			renderer.render();
 			renderer.handleInputs();
+			renderer.render();
 			
 			if (start - LDUtime > 0.5 * 1_000_000_000) {
 				double deltaLDU = (start - LDUtime) / 1_000_000_000d;
@@ -59,7 +59,7 @@ public class Core {
 				LDUframes = PixelCanvas.frames;
 			}
 			
-			//try {Thread.sleep(5);} catch (InterruptedException e) {}
+			renderer.canvas.repaint();
 		}
 	}
 }

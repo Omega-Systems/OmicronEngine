@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class FileHandler {
-	static final int version = 3;
+	static final int version = 4;
 	String filename;
 	
 	public FileHandler(String filename) {
@@ -91,15 +91,15 @@ public class FileHandler {
 							sector.drawQueue.add(Integer.valueOf(tokens[1]));
 							break;
 						case "area":
-							sector.bottomLeft = new Vec2(Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2]));
-							sector.topRight = new Vec2(Integer.valueOf(tokens[3]), Integer.valueOf(tokens[4]));
+							sector.bottomLeft = new Vec2(Double.valueOf(tokens[1]), Double.valueOf(tokens[2]));
+							sector.topRight = new Vec2(Double.valueOf(tokens[3]), Double.valueOf(tokens[4]));
 							sector.origin = sector.bottomLeft.add(sector.topRight).div(2.);
 							break;
 						case "wall":
-							sector.walls.add(new Wall(new Vec2(Integer.valueOf(tokens[1]), Integer.valueOf(tokens[2])),
-													  new Vec2(Integer.valueOf(tokens[3]), Integer.valueOf(tokens[4])),
-													  Integer.valueOf(tokens[5]), Integer.valueOf(tokens[6]),
-													  Integer.parseUnsignedInt(tokens[7].substring(2), 16)));
+							sector.walls.add(new Wall(new Vec3(Double.valueOf(tokens[1]), Double.valueOf(tokens[2]), Double.valueOf(tokens[3])),
+													  new Vec3(Double.valueOf(tokens[4]), Double.valueOf(tokens[5]), Double.valueOf(tokens[6])),
+													  Double.valueOf(tokens[7]), Integer.valueOf(tokens[8]),
+													  Integer.parseUnsignedInt(tokens[9].substring(2), 16)));
 							break;
 						case "enddef":
 							object = "";

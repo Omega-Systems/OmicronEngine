@@ -6,18 +6,21 @@ import java.util.Comparator;
 import java.util.List;
 
 public class Renderer {
-	private final String TITLE = "OmegaSystems 3D Engine - Rendering Test 4";
+	private final String TITLE = "Omicron Engine - Rendering Test 5";
 	private final double aspectRatio = 16. / 9.;
 	public final int WIDTH = 1200;
 	public final int HEIGHT = (int) (WIDTH / aspectRatio);
+	public final int HALF_WIDTH = WIDTH / 2;
+	public final int HALF_HEIGHT = HEIGHT / 2;
 	
-	private Window window;
-	private PixelCanvas canvas;
-	private InputHandler inputHandler;
+	public Window window;
+	public PixelCanvas canvas;
+	public InputHandler inputHandler;
 	
-	private final double eyeheight = 0.5;
+	private double eyeheight = 0.5;
 	public Vec3 playerPos;
 	public double playerYaw;
+	public double playerPitch;
 	public Vec3 velocity = new Vec3(0., 0., 0.);
 	public double upwardsVelocity;
 	
@@ -56,11 +59,11 @@ public class Renderer {
 		}
 		for (int i: actSector.drawQueue) {
 			for (Wall wall: sectors.get(i).walls) {
-				wallQueue.add(wall.transform(cameraPos, playerYaw));
+				wallQueue.add(wall.transform(cameraPos, playerYaw, playerPitch));
 			}
 		}
 		for (Wall wall: actSector.walls) {
-			wallQueue.add(wall.transform(cameraPos, playerYaw));
+			wallQueue.add(wall.transform(cameraPos, playerYaw, playerPitch));
 		}
 		
 		Collections.sort(wallQueue, new Comparator<Wall>() {
@@ -76,8 +79,6 @@ public class Renderer {
 			wallQueue.remove(0);
 		}
 		updateQuadQueue();
-		
-		canvas.repaint();
 	}
 	
 	public void updateQuadQueue() {
@@ -132,6 +133,7 @@ public class Renderer {
 		}
 		
 		tempQuadQueue.add(new Quad(aLowerP, bLowerP, bUpperP, aUpperP, wall.color));
+		
 		debugWD += 1;
 	}
 	
@@ -141,12 +143,25 @@ public class Renderer {
 	}
 	
 	public void handleInputs() {
-		playerYaw += 2. * inputHandler.rotationSpeed * Core.deltatime;
+		playerYaw += 2. * inputHandler.yawSpeed * Core.deltatime;
+		//playerPitch += 2. * inputHandler.pitchSpeed * Core.deltatime;
 		
 		Vec2 movementXZ = new Vec2(inputHandler.rightSpeed, inputHandler.forwardSpeed).normalize();
 		
+		if (playerPos.y <= 0.) {
+			upwardsVelocity = 0.;
+			if (inputHandler.jump == 1) {
+				upwardsVelocity = .000008;
+			}
+			velocity = velocity.mul(0.2);
+		}
+		else {
+			upwardsVelocity -= Core.deltatime * 0.00003;
+			velocity = velocity.mul(0.3);
+		}
+		
 		velocity = velocity.add(new Vec3(movementXZ.x, 0, movementXZ.y).yaw(-playerYaw).mul(Core.deltatime).mul(2.));
-		velocity = velocity.mul(0.5);
+		//System.out.println(velocity.length());
 		
 		Vec3 newPos = playerPos.add(velocity);
 		Vec2 xz = newPos.xz();
@@ -157,23 +172,7 @@ public class Renderer {
 			}
 		}
 		
-		if (newPos.y <= 0.) {
-			upwardsVelocity = 0.;
-			if (inputHandler.jump == 1) {
-				upwardsVelocity = .000008;
-			}
-		}
-		else {
-			upwardsVelocity -= Core.deltatime * 0.00003;
-		}
-		
+		eyeheight = inputHandler.crouch == 0. ? 0.5 : 0.2;
 		playerPos.y += upwardsVelocity;
-		
-		if (inputHandler.debugInterrupt) {
-			System.out.println("DEBUG INTERRUPT");
-			System.out.println(playerPos);
-			System.out.println(playerYaw);
-			Core.running = false;
-		}
 	}
 }

@@ -35,8 +35,10 @@ public class Wall {
 		return new Vec3(b.x, hb, b.y);
 	}
 	
-	public Wall transform(Vec3 pos, double angle) {
-		return new Wall(a.sub(pos).yaw(angle), b.sub(pos).yaw(angle), this.ha, this.hb, this.color);
+	public Wall transform(Vec3 pos, double yaw, double pitch) {
+		return new Wall(a.sub(pos).yaw(yaw).pitch(pitch),
+						b.sub(pos).yaw(yaw).pitch(pitch),
+						this.ha, this.hb, this.color);
 	}
 	
 	@Override

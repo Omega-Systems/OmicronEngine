@@ -55,6 +55,10 @@ public class Vec3 {
 		return new Vec3(Math.cos(angle) * this.x + Math.sin(angle) * z, this.y, - Math.sin(angle) * this.x + Math.cos(angle) * this.z);
 	}
 	
+	public Vec3 pitch(double angle) { // Rotation on the YZ-Plane (X-Axis)
+		return new Vec3(this.x, Math.cos(angle) * this.y + Math.sin(angle) * this.z, Math.sin(angle) * this.y + Math.cos(angle) * this.z);
+	}
+	
 	public Vec2 xz() {
 		return new Vec2(this.x, this.z);
 	}
